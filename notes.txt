@@ -1,0 +1,77 @@
+https://testdriven.io/blog/django-channels/
+after the basic setup and django code , pip install chanels and OS redis service, pip install the connector channels_redis=3.3.1
+
+add the channels_layers dict to settings file 
+CHANNEL_LAYERS = {
+    'default' : {
+        'BACKEND' : 'channels_redis.core.RedisChannelLayer',
+        'CONFIG' : {
+            "hosts" : [('localhost',6379)],
+        },
+    },
+}
+
+the testing of the service can be done as 
+redis-cli ping --> reply will be pong
+
+
+>>> import channels.layers 
+    #import the python chanels
+
+>>> channel_layer = channels.layers.get_channel_layer()
+    #the chanels layer object is created
+
+>>> from asgiref.sync import async_to_sync
+    # for shell based testing the async code of django chanels is converted to sync because the layer is async in nature
+
+>>> async_to_sync(channel_layer.send)('test_channel', {'type': 'hello'})
+    # the channel_layer send function is used to send the msg {'type':'hello'} to the chanel 'test_channel' 
+
+>>> async_to_sync(channel_layer.receive)('test_channel')
+    # the channel_layer receive function is getting the msg body from the 'test_channel'
+    {'type': 'hello'}
+
+
+Sure, let's break down the concept of consumers in Django Channels in simpler terms:
+
+**1. What is a Consumer?**
+
+A consumer is like a small piece of code that handles real-time interactions in a Django Channels application. It's a bit like a mini-web application that listens for events and responds to them. In traditional Django, you can think of consumers as similar to views, but they work asynchronously and can handle ongoing interactions.
+
+**2. Like Long-Running Web Pages:**
+
+Imagine a web page that you can keep open and it updates automatically whenever new information is available. Consumers are a bit like these long-running web pages, but instead of HTML, they deal with real-time data and events.
+
+**3. Different Consumers for Different Jobs:**
+
+In your Django Channels project, you might have different consumers for different tasks. For example, one consumer could handle real-time chat messages, another could handle notifications, and yet another could manage live updates for a dashboard.
+
+**4. Scope: Details About the Connection:**
+
+Each consumer has its own "scope," which is like a bag of information about a specific connection. This scope contains important details like what kind of connection it is (like HTTP or WebSocket), the path of the connection, headers, and more technical stuff about how the connection is made.
+
+**5. Routing: Directing Traffic:**
+
+You can think of consumers as different "roads" in your Django Channels application. When an event happens, like a new chat message, the right consumer (road) is chosen based on the event type and the data's destination. Channels uses routing to make sure the event is sent to the right consumer to handle it.
+
+**6. Events and Handling:**
+
+Events are like signals that something has happened in your application. For example, a new message is received. Consumers listen for these events and know what to do when they're triggered. They could send a message to other users, update a database, or do any other kind of action.
+
+So, in simple terms, consumers in Django Channels are like specialized parts of your application that handle real-time tasks, and they're quite similar to how web pages work, but they're built for ongoing interactions and updates.
+
+| Step | Description                                                      |
+|------|------------------------------------------------------------------|
+| 1    | Start: Begin a real-time interaction.                            |
+| 2    | Event Occurs: An event happens in the application.               |
+| 3    | Event Trigger: The event triggers a consumer.                   |
+| 4    | Routing: Channels routing decides the consumer for the event.   |
+| 5    | Consumer Logic: The consumer handles the event.                 |
+| 6    | Scope: The consumer has access to connection details.           |
+| 7    | Long-Running: Consumers stay active for ongoing interactions.   |
+| 8    | Interaction Loop: Consumers are ready for new events.           |
+| 9    | Another Event: If more events occur, the process repeats.       |
+| 10   | Stop: End the flowchart when no more events need handling.      |
+
+
+the dump.rdb file has all the cached data, it has key vlaue pair of data types, plus the visuallization tool is redisinsights,
