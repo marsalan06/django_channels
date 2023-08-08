@@ -2,10 +2,11 @@ console.log('Sanity check from room.js');
 
 const roomName = JSON.parse(document.getElementById('roomName').textContent);
 
-let chatLog = document.querySelector('#chatlog');
+let chatLog = document.querySelector('#chatLog');
 let chatMessageInput = document.querySelector('#chatMessageInput');
 let chatMessageSend = document.querySelector('#chatMessageSend');
 let onlineUsersSelector = document.querySelector('#onlineUsersSelector');
+let chatSocket =  null;
 
 //add a new option to 'onlineUsersSelector'
 function onlineUsersSelectorAdd(value){
@@ -35,7 +36,59 @@ chatMessageInput.onkeyup = function(e) {
 
 chatMessageSend.onclick = function() {
     if (chatMessageInput.value.length === 0) return;
-    //TODO: Forward the Message to websocket
+    //Forward the Message to websocket
+    chatSocket.send(JSON.stringify({
+        "message" : chatMessageInput.value //send the chat message present in the send msg box to the websocket send method
+    }))
    
     chatMessageInput.value = '';
 }
+
+//connect method
+function connect(){
+    chatSocket =  new WebSocket("ws://" + window.location.host + "/ws/chat/" + roomName + "/");
+
+    chatSocket.onopen = function(e) {
+        console.log("Successfully connected to the websocket ....");
+    }
+
+    chatSocket.onclose = function(e) {
+        console.log("WebSocket connection closed unexpectedly. Trying to reconnect in 2s ...");
+        setTimeout(function(){
+            console.log("Reconnecting ...");
+            connect(); //call the connect method for websocket
+        }, 2000);
+    };
+
+    chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data); //get the data from the message
+        console.log(data);
+
+        switch (data.type){ //as per message type
+            case "chat_message" : 
+                // setTimeout(function() {
+                //     chatLog.value += data.message + "\n";
+                //     chatLog.scrollTop = chatLog.scrollHeight;
+                //     }, 100);               
+                chatLog.value +=  data.message + "\n"; //add data to the message box screen
+                console.log(chatLog)
+                break;
+            default:
+                console.error("Unknown message type!");
+                break;
+        }
+    // console.log(chatLog)
+    //scroll the message box on top
+    chatLog.scrollTop = chatLog.scrollHeight;
+    };
+
+
+    chatSocket.onerror = function(err) { //on getting error for message
+        console.log("WebSocket encountered an error: " + err.message);
+        console.log("Closing the socket.");
+        chatSocket.close();
+    }
+
+} //connect method ends
+
+connect(); //call the connect method

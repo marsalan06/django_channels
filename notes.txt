@@ -75,3 +75,13 @@ So, in simple terms, consumers in Django Channels are like specialized parts of 
 
 
 the dump.rdb file has all the cached data, it has key vlaue pair of data types, plus the visuallization tool is redisinsights,
+
+
+we have the consumer.py which has the websocket consumer class, we declare the class and init it with room_name , room_group_name and room,
+the connect method gets the room_name form the url that is initiaing the class of conusmer, forming the room_group_name from it, and gets the room if it 
+exists, it then accepts the connection and joins the user to the chanel layer and alots a chanel name to it 
+The disconnect method discard the user from the chanel layer, the recive method sends the text_data_json as message to the group_send method, the type argument
+is a method, we defined the chat_message method to it
+
+added routing.py to point a route to the class, and added that routing.py to the asgi.py file under websocket Configuration
+
