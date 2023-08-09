@@ -85,3 +85,7 @@ is a method, we defined the chat_message method to it
 
 added routing.py to point a route to the class, and added that routing.py to the asgi.py file under websocket Configuration
 
+this is a sample self.channel_name ,specific.0f896bc9c09249958fefbcbec080cdd4!f846ba18e4da46799016f410e0996771, the consumer code has the flow of 
+    init --> connect --> receive --> send 
+
+For user we have chanel AuthMiddlewareStack that provides self.scope['user'] on Authentication, 

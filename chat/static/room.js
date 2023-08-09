@@ -70,7 +70,7 @@ function connect(){
                 //     chatLog.value += data.message + "\n";
                 //     chatLog.scrollTop = chatLog.scrollHeight;
                 //     }, 100);               
-                chatLog.value +=  data.message + "\n"; //add data to the message box screen
+                chatLog.value +=  data.user + ": " +data.message + "\n"; //add data to the message box screen
                 console.log(chatLog)
                 break;
             default:
