@@ -24,13 +24,31 @@ class ChatConsumer(WebsocketConsumer):
 
         self.accept() #accept connection
 
-        #join group
+        #join the room group
         async_to_sync(self.channel_layer.group_add)(
             self.room_group_name,
             self.channel_name,
         )
         print("========self.channel_name-----")
         print(self.channel_name)
+
+        #send all users as list to the new joined user
+        self.send(json.dumps({
+            'type' : 'user_list',
+            'users' : [user.username for user in self.room.online.all()] #get all users from the room
+        }))
+
+        #send the join msg to everyone in the group by an event
+        if self.user.is_authenticated:
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_group_name,
+                {
+                    'type':'user_join',
+                    'user': self.user.username,
+                }
+            )
+            self.room.online.add(self.user) #update the user in room, many to many
+
 
     def disconnect(self, close_code):
         print("========disconnect method=====")
@@ -40,6 +58,18 @@ class ChatConsumer(WebsocketConsumer):
             self.room_group_name,
             self.channel_name
         )
+
+        #remove the user from the room and emit an event
+        if self.user.is_authenticated:
+            async_to_sync(self.channel_layer.group_send)(
+                self.room_group_name,
+                {
+                    'type':'user_leave',
+                    'user':self.user.username,
+                }
+            )
+            self.room.online.remove(self.user)
+
 
     def receive(self, text_data=None, bytes_data=None):
         print("======recive method--------")
@@ -63,5 +93,13 @@ class ChatConsumer(WebsocketConsumer):
         print(self.user, self.room, message)
         Message.objects.create(user=self.user, room=self.room, content=message)
 
+
     def chat_message(self, event):
+        self.send(text_data=json.dumps(event))
+
+
+    def user_join(self, event):
+        self.send(text_data=json.dumps(event))
+
+    def user_leave(self, event):
         self.send(text_data=json.dumps(event))
