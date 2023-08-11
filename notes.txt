@@ -91,3 +91,5 @@ this is a sample self.channel_name ,specific.0f896bc9c09249958fefbcbec080cdd4!f8
 For user we have chanel AuthMiddlewareStack that provides self.scope['user'] on Authentication, now we have the name of the user
 
 We are now on having user list, user join, user leave, 
+
+For private message we will create a private room , this will allow segrigation among the messages,
